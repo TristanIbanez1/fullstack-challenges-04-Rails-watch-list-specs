@@ -1,4 +1,5 @@
 require 'rails_helper'
+
 begin
   require "bookmarks_controller"
 rescue LoadError
@@ -17,18 +18,18 @@ if defined?(BookmarksController)
     end
 
     let(:invalid_attributes) do
-      { list_id: @list.id, bookmark: { movie_id: @movie.id, comment: "Good!" } }
+      { list_id: @list.id, bookmark: { movie_id: @movie.id, comment: "" } } # invalid because comment is empty
     end
 
     describe "GET new" do
       it "assigns a new bookmark to @bookmark" do
-        get :new, params: valid_attributes
+        get :new, params: { list_id: @list.id }
         expect(assigns(:bookmark)).to be_a_new(Bookmark)
       end
     end
 
     describe "POST create" do
-      describe "with valid params" do
+      context "with valid params" do
         it "creates a new bookmark" do
           expect {
             post :create, params: valid_attributes
@@ -47,15 +48,15 @@ if defined?(BookmarksController)
         end
       end
 
-      describe "with invalid params" do
+      context "with invalid params" do
         it "assigns a newly created but unsaved bookmark as @bookmark" do
           post :create, params: invalid_attributes
           expect(assigns(:bookmark)).to be_a_new(Bookmark)
         end
 
-        it "re-renders the 'new' template or 'lists/show'" do
+        it "re-renders the 'new' template" do
           post :create, params: invalid_attributes
-          expect(response).to render_template('new').or redirect_to(@list)
+          expect(response).to render_template("new")
         end
       end
     end
@@ -64,7 +65,7 @@ if defined?(BookmarksController)
       it "deletes a bookmark" do
         @bookmark = Bookmark.create!(valid_attributes[:bookmark].merge(list_id: @list.id))
         expect {
-          delete :destroy, params: { id: @bookmark.id }
+          delete :destroy, params: { list_id: @list.id, id: @bookmark.id }
         }.to change(Bookmark, :count).by(-1)
       end
     end
@@ -72,7 +73,7 @@ if defined?(BookmarksController)
 else
   describe "BookmarksController" do
     it "should exist" do
-      expect(defined?(Bookmarks)).to eq(true)
+      expect(defined?(BookmarksController)).to eq(true)
     end
   end
 end
